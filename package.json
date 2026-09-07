@@ -1,0 +1,29 @@
+{
+  "name": "kite",
+  "version": "1.0.0",
+  "description": "KITE — API Gateway / Reverse Proxy",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "node --import tsx --test \"tests/**/*.test.ts\"",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "mock": "tsx examples/mock-backend.ts"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "drizzle-orm": "^0.39.0",
+    "groq-sdk": "^1.5.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^22.0.0",
+    "drizzle-kit": "^0.30.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

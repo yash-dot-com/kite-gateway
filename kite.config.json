@@ -1,0 +1,74 @@
+{
+  "gateway": {
+    "port": 3000,
+    "adminPort": 3001
+  },
+  "jwt": {
+    "secret": "kite-super-secret-key-change-me-in-production-min-32-chars",
+    "issuer": "kite",
+    "expiresInSeconds": 3600
+  },
+  "cors": {
+    "allowedOrigins": [
+      "*"
+    ],
+    "allowedMethods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+      "PATCH",
+      "OPTIONS"
+    ],
+    "allowedHeaders": [
+      "Content-Type",
+      "Authorization"
+    ],
+    "maxAge": 86400
+  },
+  "rateLimiting": {
+    "windowMs": 60000,
+    "defaultMaxRequests": 100
+  },
+  "routes": [
+    {
+      "path": "/api/users/*",
+      "target": "http://localhost:4001",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "authRequired": true,
+      "rateLimit": 200,
+      "stripPrefix": "/api/users"
+    },
+    {
+      "path": "/api/products/*",
+      "target": "http://localhost:4002",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authRequired": false,
+      "rateLimit": 500,
+      "stripPrefix": "/api/products"
+    },
+    {
+      "path": "/api/orders/*",
+      "target": "http://localhost:4003",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "authRequired": true,
+      "rateLimit": 150,
+      "stripPrefix": "/api/orders"
+    }
+  ],
+  "groq": {
+    "apiKey": "${GROQ_API_KEY}",
+    "model": "qwen/qwen3.8-27b"
+  }
+}

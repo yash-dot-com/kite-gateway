@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KITE API Gateway | Auth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body class="dark-theme auth-body">
+    <div class="auth-container">
+        <!-- Floating Logo -->
+        <div class="auth-logo-container">
+            <div class="logo-icon large-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 12L12 22L22 12L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 2V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h1 class="logo-text">KITE Auth</h1>
+            <p class="auth-subtitle">Developer Identity Portal</p>
+        </div>
+
+        <div class="auth-card glass-panel" id="auth-card">
+            
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-target="login-form">Sign In</button>
+                <button class="auth-tab" data-target="signup-form">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active">
+                <div class="form-group">
+                    <label for="login-username">Username / Email</label>
+                    <input type="text" id="login-username" placeholder="developer@kite.local" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary full-width" id="login-btn">
+                    <span>Generate Token</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signup-form" class="auth-form">
+                <div class="form-group">
+                    <label for="signup-username">Desired Username</label>
+                    <input type="text" id="signup-username" placeholder="new_developer" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="••••••••" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn btn-primary full-width" id="signup-btn">
+                    <span>Create Mock Account & Sign In</span>
+                </button>
+            </form>
+
+            <!-- Success State -->
+            <div id="auth-success" class="auth-success-state">
+                <div class="success-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <h3>Authenticated!</h3>
+                <p>Your JWT has been generated and stored locally.</p>
+                
+                <div class="token-container">
+                    <div class="token-header">
+                        <span class="token-label">Access Token (Bearer)</span>
+                        <button class="btn btn-sm btn-outline copy-btn" id="copy-token-btn">Copy</button>
+                    </div>
+                    <code class="token-display" id="token-display">...</code>
+                </div>
+                
+                <div class="auth-actions">
+                    <a href="/index.html" class="btn btn-primary full-width">Go to Admin Dashboard</a>
+                    <button class="btn btn-outline full-width" id="logout-btn" style="margin-top: 12px; border-color: rgba(239, 68, 68, 0.3); color: #ef4444;">Sign Out / Clear Token</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="auth-footer">
+            <p>Tokens generated here are signed using your gateway's configured JWT secret.</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/ui.js"></script>
+    <script src="/js/auth.js"></script>
+</body>
+</html>

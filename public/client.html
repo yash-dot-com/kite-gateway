@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KITE API Gateway | Client Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/client.css">
+</head>
+<body class="dark-theme client-body">
+    <div class="client-app-container">
+        <!-- Header -->
+        <header class="client-header glass-panel">
+            <div class="client-logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 12L12 22L22 12L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 2V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h2>Kite Client Demo</h2>
+            </div>
+            <div class="client-auth-status" id="auth-status-container">
+                <!-- Populated via JS -->
+            </div>
+        </header>
+
+        <main class="client-main">
+            <!-- Sidebar for configuration -->
+            <aside class="client-sidebar glass-panel">
+                <div class="sidebar-section">
+                    <h3>Request Configuration</h3>
+                    
+                    <div class="form-group">
+                        <label>Endpoint</label>
+                        <select id="req-endpoint" class="input-select">
+                            <option value="/api/users/123">/api/users/123 (Auth Required)</option>
+                            <option value="/api/products/456">/api/products/456 (Public)</option>
+                            <option value="/api/orders/789">/api/orders/789 (Auth Required)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Method</label>
+                        <select id="req-method" class="input-select">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Attach Token</label>
+                        <select id="req-attach-token" class="input-select">
+                            <option value="yes">Yes (if logged in)</option>
+                            <option value="no">No (test 401)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary full-width" id="send-req-btn">
+                        Send Request to Gateway (Port 3000)
+                    </button>
+                </div>
+
+                <div class="sidebar-section" id="login-section">
+                    <h3>Client Login</h3>
+                    <p class="help-text" style="margin-bottom: 12px;">Log in to test authenticated routes.</p>
+                    <form id="client-login-form">
+                        <div class="form-group">
+                            <input type="text" id="login-user" placeholder="Username" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="login-pass" placeholder="Password" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline full-width">Log In</button>
+                    </form>
+                </div>
+            </aside>
+
+            <!-- Main Content for Request/Response -->
+            <section class="client-content glass-panel">
+                <div class="content-header">
+                    <h3>Gateway Response</h3>
+                    <div class="status-badge" id="res-status-badge" style="display:none;"></div>
+                </div>
+                
+                <div class="response-viewer">
+                    <pre><code id="res-output" class="json-code">Waiting for request...</code></pre>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/ui.js"></script>
+    <script src="/js/client.js"></script>
+</body>
+</html>

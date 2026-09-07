@@ -1,0 +1,119 @@
+/* Client App specific styling */
+
+.client-body {
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.05), transparent 40%);
+}
+
+.client-app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.client-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+}
+
+.client-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.client-logo .logo-icon {
+    width: 28px;
+    height: 28px;
+    color: var(--accent-primary);
+}
+
+.client-logo h2 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.auth-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.3);
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-color);
+}
+
+.auth-badge .username {
+    font-weight: 600;
+    color: var(--status-green);
+}
+
+.client-main {
+    flex: 1;
+    display: flex;
+    gap: 24px;
+    min-height: 0; /* Important for flex-child scrolling */
+}
+
+.client-sidebar {
+    width: 320px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    overflow-y: auto;
+}
+
+.sidebar-section h3 {
+    font-size: 1rem;
+    font-family: var(--font-display);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.client-content {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.response-viewer {
+    flex: 1;
+    background: #0a0a0c;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #e2e8f0;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.json-key { color: #93c5fd; }
+.json-string { color: #86efac; }
+.json-number { color: #fca5a5; }
+.json-boolean { color: #fdba74; }
+.json-null { color: #d8b4fe; }
+
+.status-badge.status-2xx { background: var(--status-green-bg); color: var(--status-green); }
+.status-badge.status-4xx { background: var(--status-yellow-bg); color: var(--status-yellow); }
+.status-badge.status-5xx { background: var(--status-red-bg); color: var(--status-red); }
