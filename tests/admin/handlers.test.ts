@@ -234,6 +234,37 @@ describe("Admin API Handlers", () => {
     }
   });
 
+  it("GET /admin/logs filters status ranges before applying the limit", async () => {
+    const { db, sqlite } = createTestDb();
+    const statuses = [199, 200, 201, 204, 299, 300, 399, 400, 401, 404, 429, 499, 500, 502, 503, 599, 600];
+    db.insert(schema.requestLogs).values(statuses.map(statusCode => ({
+      method: "GET", path: `/status/${statusCode}`, statusCode,
+      responseTimeMs: 10, clientIp: "127.0.0.1",
+    }))).run();
+    // Older errors must still appear when the latest 50 requests are successes.
+    db.insert(schema.requestLogs).values(Array.from({ length: 60 }, () => ({
+      method: "GET", path: "/recent", statusCode: 200,
+      responseTimeMs: 10, clientIp: "127.0.0.1",
+    }))).run();
+    const server = await startAdminServer(db);
+    try {
+      for (const start of [200, 400, 500]) {
+        const res = await request(server.port, "GET", `/admin/logs?status=${start / 100}xx&limit=100`);
+        assert.equal(res.statusCode, 200);
+        const logs = res.body as { statusCode: number }[];
+        const expected = [...statuses, ...Array(60).fill(200)].filter(status => status >= start && status < start + 100);
+        assert.deepEqual(logs.map(log => log.statusCode).sort((a, b) => a - b), expected.sort((a, b) => a - b));
+      }
+      const limited = await request(server.port, "GET", "/admin/logs?status=5xx&limit=2");
+      assert.deepEqual((limited.body as { statusCode: number }[]).map(log => log.statusCode), [599, 503]);
+      const all = await request(server.port, "GET", "/admin/logs?limit=100");
+      assert.equal((all.body as unknown[]).length, statuses.length + 60);
+    } finally {
+      await server.close();
+      sqlite.close();
+    }
+  });
+
   it("GET /admin/health → 200 + uptime, memory, routeCount fields", async () => {
     const { db, sqlite } = createTestDb();
     const server = await startAdminServer(db);

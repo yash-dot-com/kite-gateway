@@ -19,6 +19,11 @@
     align-items: center;
 }
 
+.auth-container > .theme-toggle {
+    align-self: flex-end;
+    margin-bottom: 24px;
+}
+
 .auth-logo-container {
     text-align: center;
     margin-bottom: 32px;
@@ -143,7 +148,7 @@
 }
 
 .token-container {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-inset);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     padding: 16px;

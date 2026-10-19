@@ -2,7 +2,7 @@
 
 **KITE** is a lightweight, high-performance API Gateway and Reverse Proxy built from scratch using Node.js and TypeScript. It is designed to act as the single entry point for a microservices architecture, providing essential edge capabilities like dynamic routing, authentication, rate limiting, and observability.
 
-Built for an **SDLC Lab Presentation**, this project demonstrates software engineering best practices, including a modular architecture, robust middleware pipelines, comprehensive automated testing (100% pass rate across 75 tests), and an innovative **AI Ops Assistant** for intelligent infrastructure monitoring.
+Built for an **SDLC Lab Presentation**, this project demonstrates software engineering best practices, including a modular architecture, robust middleware pipelines, comprehensive automated testing (100% pass rate across 79 tests), and an innovative **AI Ops Assistant** for intelligent infrastructure monitoring.
 
 ---
 
@@ -23,13 +23,14 @@ Built for an **SDLC Lab Presentation**, this project demonstrates software engin
 - **Idempotent Seeder**: Automatically boots up the database schema and loads initial routes from `kite.config.json`.
 
 ### 🎛️ Admin Dashboard & Client Demo
-- **Premium UI**: A stunning, responsive, dark-themed dashboard built purely with Vanilla HTML/CSS/JS (utilizing glassmorphism aesthetics).
+- **Premium UI**: A responsive dashboard built purely with Vanilla HTML/CSS/JS, with a light theme and an optional dark mode. The theme toggle on the dashboard, client demo, and auth portal remembers your preference across pages.
 - **Live Route Management**: Create, edit, and delete proxy routes on the fly without restarting the server.
 - **Client Demo Portal**: A built-in simulator (`/client.html`) to test authenticated and public proxy routes directly from the browser.
 
 ### 🤖 AI Ops Assistant (Beta)
 - Integrates the **Groq SDK** to provide a conversational AI interface directly within the Admin Dashboard.
 - Capable of querying the SQLite database using function/tool calling to analyze slow requests, summarize error logs, and report on system health in real-time.
+- Renders configured route maps, error distribution maps, and expected request sequences inline using Pele 1.6.0. Try **"Show my configured gateway route map"** or **"Visualize errors in the last hour by path and status"**. The assistant queries its tools first and labels observed data, sample limits, and time ranges. Diagrams support light/dark themes, zoom when needed, and expandable source. Pele loads from a pinned CDN URL; if unavailable or a diagram is invalid, the answer and source remain readable. Request sequences explain expected flow and observed outcomes; they are not distributed traces.
 
 ---
 
@@ -64,6 +65,16 @@ GROQ_API_KEY=gsk_your_groq_api_key_here
 
 ### 4. Running the Project
 
+For a demonstration, start the gateway and all three mock microservices with one command:
+
+```bash
+npm run demo
+```
+
+Open **[http://localhost:3001](http://localhost:3001)** and use the **Request Playground** sidebar tab. This command loads `.env` when present; the AI assistant requires `GROQ_API_KEY`, while the request playground works without it. Press **Ctrl+C** to stop all demo processes. Stop any separately running gateway or mock services first to avoid port conflicts.
+
+You can also run the processes separately:
+
 To fully test the Gateway, you should run the Mock Backends and the Gateway simultaneously.
 
 **Terminal 1: Start Mock Backends**
@@ -90,6 +101,20 @@ Access the main control plane at:
 - View real-time traffic metrics and gateway uptime.
 - Manage routes and view raw request logs.
 - Chat with the AI Ops Assistant to diagnose issues.
+- Send requests from **Request Playground**, generate a demo JWT, and run traffic through every configured GET route without leaving the dashboard. Responses, recent logs, total requests, and route metrics update after each request.
+
+### Presentation flow (one dashboard)
+
+1. Run `npm run demo` and open `http://localhost:3001`.
+2. Open the **Request Playground** tab, select `/api/products/*` and click **Send request**. The public request returns **200** from the Products service on port **4002**. Expand the response to show the forwarded path and backend headers.
+3. Select `/api/users/*`, uncheck **Attach saved token**, and send. Show the **401** response and the matching recent activity row.
+4. Click **Generate demo token**, check **Attach saved token**, and send again. Show **200** from the Users service on port **4001**. This uses the existing mock JWT endpoint; no separate auth page is needed.
+5. Set **Requests per route** to **3**, then click **Run all GET routes**. This sends **9 real requests** through the three default routes, including Orders on port **4003**. Inspect each response, then switch to **Dashboard** to show the increased request count and updated route metrics. Each run is limited to 50 requests, sent sequentially.
+6. Select Products, choose **POST**, and send the editable JSON body. Show the **201** response and echoed body.
+7. Switch back to **GET**, change the request path to `/api/products/error`, and send. Show the simulated **500** and recent gateway activity, then open **Dashboard** to show the updated success rate.
+8. Open **Logs** for the complete request history, or **AI Ops** for a summary if a Groq API key is configured.
+
+The playground reads the existing route list and sends requests to the gateway, never directly to mock backends. The default gateway URL uses the current hostname on port 3000; edit it if your gateway uses another address. Parameter and wildcard routes receive a suggested `123` value that you can edit. **Run all GET routes** uses the generated paths and GET methods; **Send request** uses your selected method, path, and JSON body. HTTP failures remain visible as responses, and network failures are reported separately. The mocks echo requests rather than maintaining real Users, Products, or Orders records.
 
 ### Client Demo App
 Access the interactive API testing tool at:
@@ -110,7 +135,7 @@ Access the token generation utility at:
 The project includes a rigorous, dependency-free test suite utilizing Node's native test runner.
 
 ```bash
-# Run all 75 unit and integration tests
+# Run all 79 unit and integration tests
 npm run test
 ```
 

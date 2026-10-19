@@ -116,7 +116,14 @@ export function createAdminHandlers(
 
     const conditions: ReturnType<typeof eq>[] = [];
     if (path) conditions.push(eq(requestLogs.path, path));
-    if (status) conditions.push(eq(requestLogs.statusCode, parseInt(status, 10)));
+    if (status) {
+      if (/^[245]xx$/.test(status)) {
+        const start = parseInt(status, 10) * 100;
+        conditions.push(gte(requestLogs.statusCode, start), lte(requestLogs.statusCode, start + 99));
+      } else {
+        conditions.push(eq(requestLogs.statusCode, parseInt(status, 10)));
+      }
+    }
     if (from) conditions.push(gte(requestLogs.timestamp, from));
     if (to) conditions.push(lte(requestLogs.timestamp, to));
 

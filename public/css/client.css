@@ -45,7 +45,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    background: rgba(0,0,0,0.3);
+    background: var(--bg-inset);
     padding: 6px 16px;
     border-radius: var(--radius-full);
     border: 1px solid var(--border-color);
@@ -96,14 +96,14 @@
 
 .response-viewer {
     flex: 1;
-    background: #0a0a0c;
+    background: var(--bg-dark);
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-color);
     padding: 16px;
     overflow-y: auto;
     font-family: monospace;
     font-size: 0.9rem;
-    color: #e2e8f0;
+    color: var(--text-code-block);
     white-space: pre-wrap;
     word-break: break-all;
 }
@@ -113,6 +113,47 @@
 .json-number { color: #fca5a5; }
 .json-boolean { color: #fdba74; }
 .json-null { color: #d8b4fe; }
+
+[data-theme="light"] .json-key { color: #1d4ed8; }
+[data-theme="light"] .json-string { color: #047857; }
+[data-theme="light"] .json-number { color: #b91c1c; }
+[data-theme="light"] .json-boolean { color: #9a3412; }
+[data-theme="light"] .json-null { color: #7e22ce; }
+
+.client-content, .client-sidebar {
+    min-width: 0;
+}
+
+.client-sidebar {
+    flex-shrink: 0;
+}
+
+.response-viewer pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+    .client-app-container {
+        height: auto;
+        min-height: 100vh;
+        padding: 20px 16px;
+    }
+
+    .client-header, .client-main {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 20px;
+    }
+
+    .client-sidebar {
+        width: 100%;
+    }
+
+    .response-viewer {
+        min-height: 260px;
+    }
+}
 
 .status-badge.status-2xx { background: var(--status-green-bg); color: var(--status-green); }
 .status-badge.status-4xx { background: var(--status-yellow-bg); color: var(--status-yellow); }

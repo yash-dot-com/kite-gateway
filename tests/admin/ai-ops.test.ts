@@ -4,7 +4,7 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "../../src/db/schema.js";
 import { initializeSchema } from "../../src/db/connection.js";
-import { createToolExecutors } from "../../src/admin/ai-ops.js";
+import { createToolExecutors, runAgentLoop } from "../../src/admin/ai-ops.js";
 
 function createTestDb() {
   const sqlite = new Database(":memory:");
@@ -98,5 +98,49 @@ describe("AI Ops Tools", () => {
     assert.ok(summary.length >= 2); // 404 on /api/users/999 and 500 on /api/users/1
 
     sqlite.close();
+  });
+
+  it("error maps respect the requested time range and parameterize tool inputs", () => {
+    const { db, sqlite } = createTestDb();
+    try {
+      db.insert(schema.requestLogs).values([
+        { method: "GET", path: "/older", statusCode: 500, responseTimeMs: 10, clientIp: "127.0.0.1", timestamp: "2026-10-19T10:00:00Z" },
+        { method: "GET", path: "/recent", statusCode: 401, responseTimeMs: 10, clientIp: "127.0.0.1", timestamp: "2026-10-19T11:00:00Z" },
+      ]).run();
+      const executors = createToolExecutors(db, Date.now());
+      assert.deepEqual(executors.get_error_summary({ from: "2026-10-19T10:30:00Z", to: "2026-10-19T11:30:00Z" }), [
+        { path: "/recent", status_code: 401, count: 1 },
+      ]);
+      assert.deepEqual(executors.get_error_summary({ to: "' OR 1=1 --" }), []);
+    } finally {
+      sqlite.close();
+    }
+  });
+
+  it("agent receives diagram instructions and returns fenced diagrams after querying tools", async (t) => {
+    const { db, sqlite } = createTestDb();
+    seedTestData(db);
+    const answer = 'Configured topology:\n```mermaid\nflowchart TD\nA["Gateway"] --> B["http://localhost:4001"]\n```';
+    let calls = 0;
+    t.mock.method(globalThis, "fetch", async (_url: unknown, init: RequestInit) => {
+      const body = JSON.parse(init.body as string);
+      assert.match(body.messages[0].content, /Pele/);
+      assert.match(body.messages[0].content, /Current UTC time:/);
+      assert.match(body.messages[0].content, /not a distributed trace/);
+      const message = calls++ === 0
+        ? { role: "assistant", content: null, tool_calls: [{ id: "routes-diagram", type: "function", function: { name: "get_routes", arguments: "{}" } }] }
+        : { role: "assistant", content: answer };
+      if (calls === 2) {
+        const result = JSON.parse(body.messages.find((item: { role: string }) => item.role === "tool").content);
+        assert.equal(result[0].target, "http://localhost:4001");
+      }
+      return new Response(JSON.stringify({ choices: [{ message }] }), { headers: { "Content-Type": "application/json" } });
+    });
+    try {
+      assert.equal(await runAgentLoop("Show my route map", db, "test-key", "test-model", Date.now()), answer);
+      assert.equal(calls, 2);
+    } finally {
+      sqlite.close();
+    }
   });
 });

@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KITE API Gateway | Client Demo</title>
+    <script src="/js/theme.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/client.css">
 </head>
-<body class="dark-theme client-body">
+<body class="client-body">
     <div class="client-app-container">
         <!-- Header -->
         <header class="client-header glass-panel">
@@ -24,8 +25,15 @@
                 </div>
                 <h2>Kite Client Demo</h2>
             </div>
-            <div class="client-auth-status" id="auth-status-container">
-                <!-- Populated via JS -->
+            <div class="header-actions">
+                <button type="button" class="btn btn-outline theme-toggle" data-theme-toggle aria-label="Switch to dark mode" aria-pressed="false">
+                    <svg class="theme-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 0 1 11.2 3 9 9 0 1 0 21 12.8Z"/></svg>
+                    <svg class="theme-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+                    <span data-theme-label>Dark mode</span>
+                </button>
+                <div class="client-auth-status" id="auth-status-container">
+                    <!-- Populated via JS -->
+                </div>
             </div>
         </header>
 

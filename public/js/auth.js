@@ -98,8 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
             await navigator.clipboard.writeText(token);
             copyTokenBtn.textContent = 'Copied!';
             copyTokenBtn.style.background = 'rgba(16, 185, 129, 0.2)';
-            copyTokenBtn.style.color = '#10b981';
-            copyTokenBtn.style.borderColor = '#10b981';
+            copyTokenBtn.style.color = 'var(--status-green)';
+            copyTokenBtn.style.borderColor = 'var(--status-green)';
             
             setTimeout(() => {
                 copyTokenBtn.textContent = 'Copy';

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item.dataset.target === 'routes-view') loadRoutes();
             else if (item.dataset.target === 'logs-view') loadLogs();
             else if (item.dataset.target === 'dashboard-view') loadDashboard();
+            else if (item.dataset.target === 'playground-view') document.dispatchEvent(new Event('kite:refresh-playground'));
         });
     });
 
@@ -15,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeView === 'routes-view') loadRoutes();
         else if (activeView === 'logs-view') loadLogs();
         else loadDashboard();
+        document.dispatchEvent(new Event('kite:refresh-playground'));
         UI.showToast('Data refreshed');
     });
 
@@ -70,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${m.req.toLocaleString()}</td>
                     <td>
                         <div style="display:flex;align-items:center;gap:8px;">
-                            <div style="flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">
+                            <div style="flex:1;height:4px;background:var(--bg-prompt);border-radius:2px;overflow:hidden;">
                                 <div style="height:100%;width:${successRate}%;background:var(--status-green);"></div>
                             </div>
                             <span style="font-size:0.8rem;color:var(--text-secondary)">${successRate}%</span>
@@ -217,11 +219,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ── Logs Data ───────────────────────────────────────────────
+    const logStatusFilter = document.getElementById('log-status-filter');
+    let logsRequestId = 0;
+    logStatusFilter.addEventListener('change', loadLogs);
+
     async function loadLogs() {
+        const requestId = ++logsRequestId;
+        const query = new URLSearchParams({ limit: '50' });
+        if (logStatusFilter.value) query.set('status', logStatusFilter.value);
         try {
-            const logs = await api.getLogs(50);
+            const logs = await api.get(`/admin/logs?${query}`);
+            if (requestId !== logsRequestId) return;
             const tbody = document.querySelector('#logs-table tbody');
             tbody.innerHTML = '';
+
+            if (logs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6">${logStatusFilter.value ? 'No logs match the selected status range.' : 'No request logs yet.'}</td></tr>`;
+            }
             
             logs.forEach(log => {
                 const tr = document.createElement('tr');
@@ -262,6 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         aiChatBox.appendChild(msgDiv);
         aiChatBox.scrollTop = aiChatBox.scrollHeight;
+        if (!isUser) window.KiteDiagrams.renderWithin(msgDiv).catch(err => console.error('Diagram rendering failed', err));
     }
 
     aiChatForm.addEventListener('submit', async (e) => {
@@ -310,6 +325,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Start with dashboard
     loadDashboard();
+
+    document.addEventListener('kite:request-complete', () => {
+        loadDashboard();
+        loadLogs();
+    });
     
     // Auto refresh logs if in view
     setInterval(() => {

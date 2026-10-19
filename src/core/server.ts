@@ -28,7 +28,7 @@ export async function startServers(config: KiteConfig) {
   // 1. Init Database
   const dbPath = process.env.DB_PATH || "./kite.db";
   const db = getDb(dbPath);
-  initializeSchema(db.$client as unknown as any); // initializeSchema expects the better-sqlite3 instance
+  initializeSchema((db as typeof db & { $client: Parameters<typeof initializeSchema>[0] }).$client);
   await seedFromConfig(db, config);
   log.info(`Database initialized at ${dbPath}`);
 
@@ -53,8 +53,6 @@ export async function startServers(config: KiteConfig) {
     metricsManager.middleware,
     createLoggerMiddleware(db),
     createCorsMiddleware(config.cors),
-    createRateLimiter(config.rateLimiting),
-    createJwtAuthMiddleware(config.jwt.secret, config.jwt.issuer),
     async (ctx, next) => {
       // Route matching
       const match = router.lookup(ctx.method, ctx.path);
@@ -64,9 +62,12 @@ export async function startServers(config: KiteConfig) {
       }
       ctx.state.route = match.route;
       ctx.params = match.params;
-
-      // Proxy request
-      await proxyRequest(ctx, match.route);
+      await next();
+    },
+    createRateLimiter(config.rateLimiting),
+    createJwtAuthMiddleware(config.jwt.secret, config.jwt.issuer),
+    async (ctx) => {
+      await proxyRequest(ctx, ctx.state.route!);
     },
   ]);
 
@@ -95,6 +96,8 @@ export async function startServers(config: KiteConfig) {
 
     try {
       if (ctx.path.startsWith("/admin")) {
+        // Include completed requests in dashboard metrics without waiting for the timer.
+        if (ctx.path === "/admin/metrics" && ctx.method === "GET") metricsManager.flush();
         const handled = await adminRouter.handle(ctx);
         if (!handled) {
           ctx.json(404, { error: "Admin route not found" });

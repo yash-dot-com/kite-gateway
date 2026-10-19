@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KITE API Gateway | Admin</title>
+    <script src="/js/theme.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="dark-theme">
+<body>
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
@@ -28,6 +29,10 @@
                 <button class="nav-item active" data-target="dashboard-view">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H10V10H4V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 4H20V10H14V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 14H10V20H4V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 14H20V20H14V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-target="playground-view">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="m9 5 12 7-12 7V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <span>Request Playground</span>
                 </button>
                 <button class="nav-item" data-target="routes-view">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -58,6 +63,11 @@
             <header class="top-header">
                 <h2 class="view-title" id="current-view-title">Dashboard Overview</h2>
                 <div class="header-actions">
+                    <button type="button" class="btn btn-outline theme-toggle" data-theme-toggle aria-label="Switch to dark mode" aria-pressed="false">
+                        <svg class="theme-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 0 1 11.2 3 9 9 0 1 0 21 12.8Z"/></svg>
+                        <svg class="theme-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+                        <span data-theme-label>Dark mode</span>
+                    </button>
                     <button class="btn btn-outline" id="refresh-btn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Refresh
@@ -112,6 +122,72 @@
                 </div>
             </section>
 
+            <!-- Request Playground View -->
+            <section id="playground-view" class="view-section">
+                <div class="glass-panel playground-panel">
+                    <div class="card-header">
+                        <div>
+                            <h3>Request Playground</h3>
+                            <p class="help-text">Call your microservices through the gateway. View responses and activity here, then open Dashboard for updated metrics.</p>
+                        </div>
+                        <button type="button" class="btn btn-outline btn-sm" id="demo-token-btn">Generate demo token</button>
+                    </div>
+                    <div class="playground-grid">
+                        <form id="playground-form">
+                            <div class="form-group">
+                                <label for="playground-gateway">Gateway URL</label>
+                                <input type="url" id="playground-gateway" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="playground-route">Microservice route</label>
+                                <select id="playground-route" required><option value="">Loading routes...</option></select>
+                                <span class="help-text" id="playground-route-info"></span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="playground-method">Method</label>
+                                    <select id="playground-method"><option>GET</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="playground-count">Requests per route</label>
+                                    <input type="number" id="playground-count" value="1" min="1" max="10" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="playground-path">Request path</label>
+                                <input type="text" id="playground-path" placeholder="/api/products/123" required>
+                            </div>
+                            <div class="form-group" id="playground-body-group" hidden>
+                                <label for="playground-body">JSON body</label>
+                                <textarea id="playground-body" rows="3">{"message": "Hello from KITE"}</textarea>
+                            </div>
+                            <div class="checkbox-group playground-auth">
+                                <label><input type="checkbox" id="playground-attach-token" checked> Attach saved token</label>
+                                <span class="help-text" id="playground-token-status" role="status"></span>
+                            </div>
+                            <div class="header-actions">
+                                <button type="submit" class="btn btn-primary" id="playground-send">Send request</button>
+                                <button type="button" class="btn btn-outline" id="playground-run-all">Run all GET routes</button>
+                            </div>
+                            <p class="help-text">Try <code>/api/products/error</code> for a backend error, or uncheck the token on Users / Orders for a 401.</p>
+                        </form>
+                        <div class="playground-results">
+                            <p id="playground-status" role="status">Ready. Pick a route and send a request.</p>
+                            <div id="playground-output"><p class="help-text">Responses, status codes, and timings appear here.</p></div>
+                        </div>
+                    </div>
+                    <div class="playground-activity">
+                        <h4>Recent gateway activity</h4>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead><tr><th>Time</th><th>Method</th><th>Path</th><th>Status</th><th>Time (ms)</th></tr></thead>
+                                <tbody id="playground-logs"><tr><td colspan="5">No activity loaded yet.</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Routes View -->
             <section id="routes-view" class="view-section">
                 <div class="glass-panel main-panel">
@@ -147,9 +223,9 @@
                         <div class="filters">
                             <select id="log-status-filter" class="input-select">
                                 <option value="">All Statuses</option>
-                                <option value="200">2xx Success</option>
-                                <option value="400">4xx Client Error</option>
-                                <option value="500">5xx Server Error</option>
+                                <option value="2xx">2xx Success</option>
+                                <option value="4xx">4xx Client Error</option>
+                                <option value="5xx">5xx Server Error</option>
                             </select>
                         </div>
                     </div>
@@ -176,16 +252,6 @@
             <!-- AI Ops View -->
             <section id="ai-view" class="view-section">
                 <div class="ai-container glass-panel">
-                    <div class="ai-header">
-                        <div class="ai-avatar">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a10 10 0 1 0 10 10H12V2z" fill="currentColor"/><path d="M12 2a10 10 0 0 1 10 10H12V2z" fill="currentColor" fill-opacity="0.3"/></svg>
-                        </div>
-                        <div class="ai-title-wrap">
-                            <h3>Kite AI Ops Assistant</h3>
-                            <p>Ask questions about your gateway's health, logs, or metrics.</p>
-                        </div>
-                    </div>
-                    
                     <div class="ai-chat-area" id="ai-chat-box">
                         <div class="chat-message system-msg">
                             <div class="msg-avatar">
@@ -194,6 +260,8 @@
                             <div class="msg-bubble">
                                 <p>Hello! I'm your AI Ops assistant. I can query your logs, analyze metrics, and check gateway health. How can I help you today?</p>
                                 <div class="suggested-prompts">
+                                    <button class="prompt-btn">Show my configured gateway route map.</button>
+                                    <button class="prompt-btn">Visualize recent errors by path and status.</button>
                                     <button class="prompt-btn">Are there any errors recently?</button>
                                     <button class="prompt-btn">Which route is the slowest?</button>
                                     <button class="prompt-btn">Summarize overall system health.</button>
@@ -272,8 +340,11 @@
     <div class="toast-container" id="toast-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pele@1.6.0/dist/pele.global.js"></script>
     <script src="/js/api.js"></script>
     <script src="/js/ui.js"></script>
+    <script src="/js/diagrams.js"></script>
     <script src="/js/app.js"></script>
+    <script src="/js/playground.js"></script>
 </body>
 </html>

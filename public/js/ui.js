@@ -51,6 +51,7 @@ class UI {
         // Update Title
         const titles = {
             'dashboard-view': 'Dashboard Overview',
+            'playground-view': 'Request Playground',
             'routes-view': 'Gateway Routes',
             'logs-view': 'Request Logs',
             'ai-view': 'AI Ops Assistant'
@@ -100,13 +101,25 @@ class UI {
     // Markdown parser for AI responses using marked.js
     static parseMarkdown(text) {
         if (typeof marked !== 'undefined') {
-            return marked.parse(text);
+            // Assistant output may contain untrusted log fields. Only allow markdown,
+            // with diagrams rendered separately from escaped fenced code.
+            const renderer = new marked.Renderer();
+            renderer.html = token => UI.escapeHtml(typeof token === 'string' ? token : token.text);
+            renderer.image = (token, title, alt) => UI.escapeHtml(typeof token === 'string' ? alt || '' : token.text || '');
+            renderer.link = function (token, title, text) {
+                const href = typeof token === 'string' ? token : token.href;
+                const label = typeof token === 'string' ? text : this.parser.parseInline(token.tokens);
+                if (!/^(https?:|mailto:|\/(?!\/)|#)/i.test(href)) return label;
+                return `<a href="${UI.escapeHtml(href)}" rel="noopener noreferrer">${label}</a>`;
+            };
+            return marked.parse(text, { renderer });
         }
-        // Fallback if marked fails to load
-        let html = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-        return html.split('\n\n').map(p => `<p>${p}</p>`).join('');
+        // Preserve diagram fences even if the Markdown CDN is unavailable.
+        return text.split(/(```[\s\S]*?```)/g).map(part => {
+            const fence = part.match(/^```([\w-]*)[^\n]*\n([\s\S]*?)```$/);
+            if (fence) return `<pre><code class="language-${fence[1]}">${UI.escapeHtml(fence[2])}</code></pre>`;
+            return UI.escapeHtml(part).split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+        }).join('');
     }
 }
 

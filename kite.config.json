@@ -69,6 +69,6 @@
   ],
   "groq": {
     "apiKey": "${GROQ_API_KEY}",
-    "model": "qwen/qwen3.8-27b"
+    "model": "openai/gpt-oss-120b"
   }
 }
